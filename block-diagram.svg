@@ -1,6 +1,6 @@
-<svg width="680" height="580" viewBox="0 0 680 580" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
+<svg width="680" height="420" viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
   <title>USB-C DAC + Class A Amp — top-level block diagram</title>
-  <desc>Block diagram showing USB-C audio input feeding an XMOS processor, outputting I2S to the DAC, which drives a Class A output stage and headphone jack. A separate 5V USB-C power path generates split analog rails via DC/DC converters and LDOs. Bluetooth, display/EQ, and amplifier efficiency improvements are shown as future work.</desc>
+  <desc>Block diagram showing USB-C audio input feeding an XMOS processor, outputting I2S to the DAC, which drives a Class A output stage and headphone jack. A separate 5V USB-C power path generates split analog rails via DC/DC converters and LDOs.</desc>
 
   <defs>
     <marker id="arr-audio" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -12,90 +12,65 @@
   </defs>
 
   <!-- Background -->
-  <rect width="680" height="580" fill="#ffffff"/>
+  <rect width="680" height="420" fill="#ffffff"/>
 
-  <!-- ── POWER DOMAIN ── -->
-  <rect x="40" y="462" width="600" height="96" rx="12" fill="#E6F4F0" stroke="#0F6E56" stroke-width="1"/>
-  <text x="60" y="480" font-size="11" font-weight="600" fill="#0F6E56">Power</text>
+  <!-- ── POWER DOMAIN — bottom band, y=310 ── -->
+  <rect x="40" y="310" width="600" height="96" rx="12" fill="#E6F4F0" stroke="#0F6E56" stroke-width="1"/>
+  <text x="60" y="328" font-size="11" font-weight="600" fill="#0F6E56">Power</text>
 
-  <!-- USB-C power -->
-  <rect x="60" y="484" width="130" height="56" rx="6" fill="#C8EBE3" stroke="#0F6E56" stroke-width="1"/>
-  <text x="125" y="507" text-anchor="middle" font-size="12" font-weight="600" fill="#0F6E56">USB-C (power)</text>
-  <text x="125" y="526" text-anchor="middle" font-size="10" fill="#0F6E56">5V / 3A via CC resistors</text>
+  <rect x="60" y="332" width="130" height="56" rx="6" fill="#C8EBE3" stroke="#0F6E56" stroke-width="1"/>
+  <text x="125" y="355" text-anchor="middle" font-size="12" font-weight="600" fill="#0F6E56">USB-C (power)</text>
+  <text x="125" y="374" text-anchor="middle" font-size="10" fill="#0F6E56">5V / 3A via CC resistors</text>
 
-  <!-- DC/DC converters -->
-  <rect x="240" y="484" width="160" height="56" rx="6" fill="#C8EBE3" stroke="#0F6E56" stroke-width="1"/>
-  <text x="320" y="507" text-anchor="middle" font-size="12" font-weight="600" fill="#0F6E56">DC/DC converters</text>
-  <text x="320" y="526" text-anchor="middle" font-size="10" fill="#0F6E56">Boost (+)  ·  Inverting (−)</text>
+  <rect x="240" y="332" width="160" height="56" rx="6" fill="#C8EBE3" stroke="#0F6E56" stroke-width="1"/>
+  <text x="320" y="355" text-anchor="middle" font-size="12" font-weight="600" fill="#0F6E56">DC/DC converters</text>
+  <text x="320" y="374" text-anchor="middle" font-size="10" fill="#0F6E56">Boost (+)  ·  Inverting (−)</text>
 
-  <!-- LDOs -->
-  <rect x="454" y="484" width="160" height="56" rx="6" fill="#C8EBE3" stroke="#0F6E56" stroke-width="1"/>
-  <text x="534" y="507" text-anchor="middle" font-size="12" font-weight="600" fill="#0F6E56">LDOs</text>
-  <text x="534" y="526" text-anchor="middle" font-size="10" fill="#0F6E56">±V analog rails</text>
+  <rect x="454" y="332" width="160" height="56" rx="6" fill="#C8EBE3" stroke="#0F6E56" stroke-width="1"/>
+  <text x="534" y="355" text-anchor="middle" font-size="12" font-weight="600" fill="#0F6E56">LDOs</text>
+  <text x="534" y="374" text-anchor="middle" font-size="10" fill="#0F6E56">±V analog rails</text>
 
-  <!-- Power arrows -->
-  <line x1="190" y1="512" x2="238" y2="512" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arr-power)"/>
-  <line x1="400" y1="512" x2="452" y2="512" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arr-power)"/>
+  <line x1="190" y1="360" x2="238" y2="360" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arr-power)"/>
+  <line x1="400" y1="360" x2="452" y2="360" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arr-power)"/>
 
-  <!-- ── SIGNAL DOMAIN ── -->
+  <!-- ── SIGNAL DOMAIN ──
+       USB-C audio:   y=30,  h=44  → bottom y=74
+       XMOS:          y=20,  h=100 → bottom y=120
+       DAC:           y=30,  h=56  → bottom y=86
+       Output stage:  y=140, h=56  → bottom y=196
+       HP jack:       y=220, h=44  → bottom y=264
+       Gap to power band: 310-264 = 46px clear
+  -->
 
-  <!-- USB-C audio -->
-  <rect x="40" y="150" width="130" height="44" rx="6" fill="#F0F0F0" stroke="#888780" stroke-width="1"/>
-  <text x="105" y="177" text-anchor="middle" font-size="12" font-weight="600" fill="#444">USB-C (audio)</text>
+  <!-- USB-C audio input -->
+  <rect x="40" y="48" width="130" height="44" rx="6" fill="#F0F0F0" stroke="#888780" stroke-width="1"/>
+  <text x="105" y="75" text-anchor="middle" font-size="12" font-weight="600" fill="#444">USB-C (audio)</text>
 
   <!-- XMOS -->
-  <rect x="226" y="120" width="188" height="100" rx="8" fill="#ECEAF8" stroke="#534AB7" stroke-width="1.5"/>
-  <text x="320" y="152" text-anchor="middle" font-size="13" font-weight="700" fill="#534AB7">XMOS</text>
-  <text x="320" y="172" text-anchor="middle" font-size="10" fill="#534AB7">USB bridge · UAC 2.0</text>
-  <text x="320" y="192" text-anchor="middle" font-size="10" fill="#534AB7">I2S master out</text>
+  <rect x="226" y="20" width="188" height="100" rx="8" fill="#ECEAF8" stroke="#534AB7" stroke-width="1.5"/>
+  <text x="320" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#534AB7">XMOS</text>
+  <text x="320" y="72" text-anchor="middle" font-size="10" fill="#534AB7">USB bridge · UAC 2.0</text>
+  <text x="320" y="92" text-anchor="middle" font-size="10" fill="#534AB7">I2S master out</text>
 
   <!-- DAC -->
-  <rect x="466" y="140" width="148" height="56" rx="6" fill="#ECEAF8" stroke="#534AB7" stroke-width="1.5"/>
-  <text x="540" y="163" text-anchor="middle" font-size="13" font-weight="700" fill="#534AB7">DAC</text>
-  <text x="540" y="183" text-anchor="middle" font-size="10" fill="#534AB7">I2S in · analog out</text>
+  <rect x="466" y="30" width="148" height="56" rx="6" fill="#ECEAF8" stroke="#534AB7" stroke-width="1.5"/>
+  <text x="540" y="53" text-anchor="middle" font-size="13" font-weight="700" fill="#534AB7">DAC</text>
+  <text x="540" y="73" text-anchor="middle" font-size="10" fill="#534AB7">I2S in · analog out</text>
 
   <!-- Output stage -->
-  <rect x="466" y="268" width="148" height="56" rx="6" fill="#ECEAF8" stroke="#534AB7" stroke-width="1.5"/>
-  <text x="540" y="291" text-anchor="middle" font-size="13" font-weight="700" fill="#534AB7">Output stage</text>
-  <text x="540" y="311" text-anchor="middle" font-size="10" fill="#534AB7">Class A · Zout &lt; 1Ω</text>
+  <rect x="466" y="140" width="148" height="56" rx="6" fill="#ECEAF8" stroke="#534AB7" stroke-width="1.5"/>
+  <text x="540" y="163" text-anchor="middle" font-size="13" font-weight="700" fill="#534AB7">Output stage</text>
+  <text x="540" y="183" text-anchor="middle" font-size="10" fill="#534AB7">Class A · Zout &lt; 1Ω</text>
 
   <!-- HP jack -->
-  <rect x="466" y="378" width="148" height="56" rx="6" fill="#F0F0F0" stroke="#888780" stroke-width="1"/>
-  <text x="540" y="401" text-anchor="middle" font-size="12" font-weight="600" fill="#444">HP jack</text>
-  <text x="540" y="421" text-anchor="middle" font-size="10" fill="#444">3.5mm · mute circuit</text>
+  <rect x="466" y="240" width="148" height="44" rx="6" fill="#F0F0F0" stroke="#888780" stroke-width="1"/>
+  <text x="540" y="257" text-anchor="middle" font-size="12" font-weight="600" fill="#444">HP jack</text>
+  <text x="540" y="275" text-anchor="middle" font-size="10" fill="#444">3.5mm · mute circuit</text>
 
   <!-- Signal arrows -->
-  <line x1="170" y1="172" x2="224" y2="172" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
-  <line x1="414" y1="168" x2="464" y2="168" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
-  <text x="439" y="160" text-anchor="middle" font-size="10" fill="#534AB7">I2S</text>
-  <line x1="540" y1="196" x2="540" y2="266" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
-  <line x1="540" y1="324" x2="540" y2="376" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
-
-  <!-- Power rail dashes -->
-  <path d="M574 484 L574 446 L596 446 L596 326" fill="none" stroke="#0F6E56" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr-power)"/>
-  <path d="M614 484 L614 198" fill="none" stroke="#0F6E56" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr-power)"/>
-
-  <!-- ── FUTURE WORK ── -->
-  <rect x="40" y="36" width="560" height="88" rx="10" fill="none" stroke="#AAAAAA" stroke-width="1" stroke-dasharray="6 4"/>
-  <text x="56" y="55" font-size="10" font-style="italic" fill="#AAAAAA">Future work</text>
-
-  <rect x="56" y="62" width="148" height="50" rx="6" fill="#F8F8F8" stroke="#BBBBBB" stroke-width="1" stroke-dasharray="4 3"/>
-  <text x="130" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#AAAAAA">Bluetooth module</text>
-  <text x="130" y="100" text-anchor="middle" font-size="10" fill="#AAAAAA">A2DP · aptX · I2S out</text>
-
-  <rect x="224" y="62" width="148" height="50" rx="6" fill="#F8F8F8" stroke="#BBBBBB" stroke-width="1" stroke-dasharray="4 3"/>
-  <text x="298" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#AAAAAA">Display + EQ</text>
-  <text x="298" y="100" text-anchor="middle" font-size="10" fill="#AAAAAA">Mode selection · XMOS DSP</text>
-
-  <rect x="392" y="62" width="192" height="50" rx="6" fill="#F8F8F8" stroke="#BBBBBB" stroke-width="1" stroke-dasharray="4 3"/>
-  <text x="488" y="82" text-anchor="middle" font-size="11" font-weight="600" fill="#AAAAAA">Efficient output stage</text>
-  <text x="488" y="100" text-anchor="middle" font-size="10" fill="#AAAAAA">Topology TBD · under evaluation</text>
-
-  <!-- ── LEGEND ── -->
-  <line x1="44" y1="444" x2="80" y2="444" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
-  <text x="86" y="448" font-size="10" fill="#534AB7">Audio / I2S</text>
-  <line x1="190" y1="444" x2="226" y2="444" stroke="#0F6E56" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr-power)"/>
-  <text x="232" y="448" font-size="10" fill="#0F6E56">Power rail</text>
-  <line x1="336" y1="444" x2="372" y2="444" stroke="#BBBBBB" stroke-width="1" stroke-dasharray="4 3"/>
-  <text x="378" y="448" font-size="10" fill="#AAAAAA">Future work</text>
+  <line x1="170" y1="70" x2="224" y2="70" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
+  <line x1="414" y1="58" x2="464" y2="58" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
+  <text x="439" y="50" text-anchor="middle" font-size="10" fill="#534AB7">I2S</text>
+  <line x1="540" y1="86" x2="540" y2="138" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
+  <line x1="540" y1="196" x2="540" y2="238" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arr-audio)"/>
 </svg>
