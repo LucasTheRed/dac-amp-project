@@ -1,21 +1,28 @@
 # USB-C / Bluetooth DAC + Headphone Amp
 
-A from-scratch portable headphone DAC and amplifier with USB-C audio input, Bluetooth audio, and USB-C power delivery. Designed as a personal project to learn PCB layout for mixed signal applications, and USB C power.  
+A from-scratch desktop headphone DAC and amplifier with USB-C audio input, Bluetooth audio, and USB-C power. Designed as a personal project to go end-to-end on PCB layout for analog audio including power architecture, analog signal chain, grounding strategy, all of it.
 
-> **Status:** [In progress — devkit firmware development]
+> **Status:** Firmware and circuit protoboarding in progress. Schematic on hold until protoboard validation is complete. PCB layout not yet started.
 
 ---
 
-![Block diagram](docs/block-diagram.png)
-*System block diagram — USB C and BT to MCU, then out to DAC, Amp, and finally headphones*
+<!-- Block diagram -->
+![Block diagram](docs/block-diagram.svg)
+*Top-level block diagram — XMOS handles USB bridging and input selection; I2S to DAC; split rail power from 5V USB-C*
 
 ---
 
 ## Why this exists
 
-I wanted a desktop DAC/amp that I actually understood end-to-end: the power architecture, the analog signal chain, the grounding strategy. There are plenty of cheap dongles and off-the-shelf solutions, but they don't teach you anything about why a particular output stage topology works, or how to keep switching noise out of a 192 kHz signal path.
+There are plenty of cheap USB dongles that measure fine. They don't teach you anything about why a particular output stage topology works, how to keep a switching converter's noise out of a 192 kHz signal path, or what it actually takes to drive a high-impedance headphone cleanly from a 5V supply.
 
 So I built one.
+
+---
+
+## Design target: Beyerdynamic T90
+
+The primary design target is the Beyerdynamic T90 — 250Ω nominal impedance, 102 dB SPL/mW sensitivity. It's on the harder end of common headphone loads and sets the binding constraints for the output stage and power architecture. The design is intended to work well with other headphones too, from low-impedance IEMs up through other high-impedance dynamics.
 
 ---
 
@@ -23,29 +30,30 @@ So I built one.
 
 | Parameter | Target | Notes |
 |---|---|---|
-| Audio inputs | USB-C (UAC 2.0), Bluetooth 5.x | A2DP / aptX via BT module |
-| Power input | USB-C, 5V/3A (15W) via CC resistors | No PD controller — resistor-configured only |
+| Audio inputs | USB-C (UAC 2.0) | Bluetooth planned for future revision |
+| Power input | USB-C, 5V/3A (15W) via CC resistors | No PD controller; resistor-configured only |
 | Sample rate | Up to 192 kHz / 24-bit via USB | |
 | Output | 3.5mm stereo headphone jack | |
 | Output power | 200 mW into 250Ω, 50 mW into 32Ω | T90 rated max is 200 mW |
 | Output impedance | < 1Ω | Covers T90 and low-Z IEMs without FR interaction |
-| SNR | > 110 dB (target) |
-| THD+N | < 0.005% (target) |
-| Layers | 4-layer PCB |
+| SNR | > 110 dB | T90 resolves enough detail to hear the difference |
+| THD+N | < 0.005% | |
+| Supply rails | ±[V] regulated | Boost + inverting DC/DC, post-LDO on each rail |
+| Layers | 4-layer PCB | |
 
 ---
 
 ## System architecture
 
-The signal chain has two parallel audio input paths that converge at the MCU:
+The design splits into three concerns: power, digital audio routing, and the analog output stage.
 
-**USB path:** USB-C receptacle → USB audio bridge MCU → I2S → DAC
+**USB audio path:** USB-C receptacle → XMOS → I2S → DAC
 
-**Bluetooth path:** BT module (I2S out) → MCU
+**Power path:** USB-C (5V/3A via CC resistors) → boost converter (+rail) + inverting converter (−rail) → LDO per rail → analog supply
 
-The DAC drives a discrete output stage. Power comes in via USB-C PD, regulated to clean analog and digital supply rails with LDOs to keep switching noise away from the audio circuitry.
+The XMOS processor is the hub of the digital audio section. It handles USB device enumeration and UAC 2.0 audio streaming from the USB-C input, then passes I2S to the DAC. The XMOS was chosen over a dedicated USB audio bridge IC because it consolidates bridging and any future audio routing logic into firmware rather than fixed hardware making Bluetooth and EQ mode selection practical additions in a future revision without a board respin of the core architecture.
 
-A more detailed writeup of every design decision — IC selection rationale, grounding strategy, power rail partitioning — lives in [`docs/design-notes.md`](docs/design-notes.md).
+The power path is driven by the 5V USB-C input constraint. Two DC/DC converters step the 5V bus up to split rails, each followed by a dedicated LDO for noise rejection before anything analog sees the supply. Power sequencing on split rails requires a muting circuit to hold the headphone output disconnected until both rails are stable.
 
 ---
 
@@ -54,13 +62,13 @@ A more detailed writeup of every design decision — IC selection rationale, gro
 ```
 usb-audio-dac-amp/
 ├── hardware/
-│   ├── schematic/       # KiCad schematic source
-│   ├── pcb/             # KiCad PCB layout source
-│   ├── fab/             # Gerbers, drill files, BOM for production
+│   ├── schematic/       # KiCad schematic source (in progress)
+│   ├── pcb/             # KiCad PCB layout (not started)
+│   ├── fab/             # Gerbers, drill files, production BOM
 │   ├── lib/             # Custom symbols and footprints
 │   └── datasheets/      # Key IC datasheets
 ├── firmware/
-│   ├── src/             # MCU source (DAC/PD config over I2C)
+│   ├── src/             # XMOS firmware (USB audio, input selection, I2S routing)
 │   └── README.md        # Toolchain and flash instructions
 ├── docs/
 │   ├── block-diagram.png
@@ -78,15 +86,25 @@ usb-audio-dac-amp/
 
 Longer rationale for each of these is in `docs/design-notes.md`.
 
-**DAC IC:** [TBD — e.g. PCM5102A / ES9038Q2M] — chosen for ...
+**XMOS processor:** Handles USB device enumeration (UAC 2.0) and I2S output to the DAC. Chosen over a fixed-function USB bridge IC because the programmable architecture makes future additions (Bluetooth input, EQ processing, display control) firmware work rather than hardware changes.  
 
-**MCU** [TBD] — USB Audio Class 2 (so I didn't need to write a custom OS driver) was critical; I2S output.   
+**DAC IC:** [TBD] — key constraints are I2S compatibility with the XMOS output, package suitable for hand-soldering on a first rev, and noise floor.
 
-**Bluetooth Module** [TBD] - APTX HD, Bluetooth Classic, and BLE were the ideal targets; this ended up causing incredible headaches.  
+**Output stage:** Class A topology. Must drive 250Ω with < 1Ω output impedance and sufficient voltage swing for 200 mW into the T90, while remaining stable into low-impedance loads.
 
-**Output stage:** [TBD — discrete class AB / opamp-based] — chosen because ...
+**Power architecture:** 5V from USB-C via CC resistors (no PD controller). Boost converter for the positive rail, inverting converter for the negative, both from the 5V bus. One dedicated LDO per rail for noise rejection. Analog and digital ground returns joined at a single point near the DAC.
 
-**Power architecture:** USB-C with CC resistors for 15W of power. Separate LDO rails for analog and digital to isolate switching noise. Ground plane split at the DAC.
+---
+
+## Future work
+
+Features deferred from the initial revision, planned for subsequent revisions once the core design is validated:
+
+**Bluetooth audio input:** Sourcing a suitable module with direct I2S output proved difficult. Deferred to a future revision. 
+
+**EQ mode selection with display:** A small display and input controls for switching between EQ presets. EQ processing would run on the XMOS. Deferred until the base firmware is stable.  Will likely require a separate display driver, necesitating a board spin. 
+
+**More efficient output stage:** The current Class A output stage is straightforward and well-understood, but dissipates significant quiescent power. A future revision will evaluate alternative topologies — the tradeoffs (output filter interaction with headphone impedance, EMI on an analog-sensitive board) need proper evaluation before committing to a direction.
 
 ---
 
@@ -94,7 +112,7 @@ Longer rationale for each of these is in `docs/design-notes.md`.
 
 | Rev | Status | Notes |
 |---|---|---|
-| v0.1 | In progress | Initial schematic, component selection, devkit firmware development |
+| v0.1 | In progress | Firmware development and protoboard circuit validation underway. Schematic on hold pending results. |
 
 ---
 
@@ -102,21 +120,22 @@ Longer rationale for each of these is in `docs/design-notes.md`.
 
 *To be populated after first board bring-up.*
 
-Planned measurements: output noise floor, THD+N vs. frequency, crosstalk, frequency response, power supply rejection.
+Planned: output noise floor, THD+N vs. frequency, crosstalk (L/R), frequency response 20 Hz–20 kHz, PSRR on the analog rail, output impedance.
 
 ---
 
 ## Full writeup
 
-A detailed post covering the whole design process — what worked, what didn't, what I'd do differently — will be published here when the project is complete: [link TBD]
+A detailed post covering the whole design process  will be published here when the project is complete: [link TBD]
 
 ---
 
 ## Tools used
 
-- KiCad [version] for schematic and PCB
-- [Audio analyzer tool, e.g. REW or ARTA] for measurements
-- [Any simulation tools]
+- KiCad for schematic and PCB
+- [Audio analyzer, e.g. REW / ARTA] for measurements
+- LTSpice for simulation
+- Octave GNU for future EQ filter testing
 
 ---
 
