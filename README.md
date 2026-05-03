@@ -96,18 +96,6 @@ Longer rationale for each of these is in `docs/design-notes.md`.
 
 ---
 
-## Future work
-
-Features deferred from the initial revision, planned for subsequent revisions once the core design is validated:
-
-**Bluetooth audio input:** Sourcing a suitable module with direct I2S output proved difficult. Deferred to a future revision. 
-
-**EQ mode selection with display:** A small display and input controls for switching between EQ presets. EQ processing would run on the XMOS. Deferred until the base firmware is stable.  Will likely require a separate display driver, necesitating a board spin. 
-
-**More efficient output stage:** The current Class A output stage is straightforward and well-understood, but dissipates significant quiescent power. A future revision will evaluate alternative topologies — the tradeoffs (output filter interaction with headphone impedance, EMI on an analog-sensitive board) need proper evaluation before committing to a direction.
-
----
-
 ## Build status / revision history
 
 | Rev | Status | Notes |
